@@ -18,8 +18,8 @@
           <el-icon class="cover-icon"><Headset /></el-icon>
         </div>
         <div class="song-text">
-          <div class="title">{{ currentSong?.name || "No Song" }}</div>
-          <div class="artist">{{ currentSong?.artist || "Unknown" }}</div>
+          <div class="title">{{ currentSong?.name || 'No Song' }}</div>
+          <div class="artist">{{ currentSong?.artist || 'Unknown' }}</div>
         </div>
       </div>
 
@@ -110,7 +110,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from "vue";
+import { ref, computed, watch, onMounted } from 'vue'
 import {
   Headset,
   ArrowLeftBold,
@@ -122,145 +122,145 @@ import {
   VideoPlay,
   Mute,
   Lock,
-} from "@element-plus/icons-vue";
-import { ElMessage } from "element-plus";
-import type { GameItem } from "../types";
+} from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
+import type { GameItem } from '../types'
 
-const props = defineProps<{ playlist: GameItem[] }>();
-const audioRef = ref<HTMLAudioElement | null>(null);
-const isPlaying = ref(false);
-const duration = ref(0);
-const volume = ref(50);
-const lastVolume = ref(50);
-const sliderValue = ref(0);
-const isDragging = ref(false);
-const currentIndex = ref(0);
+const props = defineProps<{ playlist: GameItem[] }>()
+const audioRef = ref<HTMLAudioElement | null>(null)
+const isPlaying = ref(false)
+const duration = ref(0)
+const volume = ref(50)
+const lastVolume = ref(50)
+const sliderValue = ref(0)
+const isDragging = ref(false)
+const currentIndex = ref(0)
 
-const currentSong = computed(() => props.playlist[currentIndex.value]);
+const currentSong = computed(() => props.playlist[currentIndex.value])
 const safeDuration = computed(() =>
   duration.value && !isNaN(duration.value) && duration.value !== Infinity
     ? duration.value
     : 0
-);
+)
 
 onMounted(() => {
-  const saved = localStorage.getItem("flow-music-settings");
+  const saved = localStorage.getItem('flow-music-settings')
   if (saved) {
     try {
-      const { index, vol } = JSON.parse(saved);
+      const { index, vol } = JSON.parse(saved)
       if (
-        typeof index === "number" &&
+        typeof index === 'number' &&
         index >= 0 &&
         index < props.playlist.length
       )
-        currentIndex.value = index;
-      if (typeof vol === "number") volume.value = vol;
+        currentIndex.value = index
+      if (typeof vol === 'number') volume.value = vol
     } catch (e) {}
   }
-});
+})
 watch([currentIndex, volume], ([newIndex, newVol]) => {
   localStorage.setItem(
-    "flow-music-settings",
+    'flow-music-settings',
     JSON.stringify({ index: newIndex, vol: newVol })
-  );
-});
+  )
+})
 
 const togglePlay = () => {
-  if (!currentSong.value) return;
+  if (!currentSong.value) return
   if (!currentSong.value.unlocked) {
-    ElMessage.warning("未解锁");
-    return;
+    ElMessage.warning('未解锁')
+    return
   }
-  if (!audioRef.value) return;
-  if (isPlaying.value) audioRef.value.pause();
-  else audioRef.value.play().catch(() => {});
-  isPlaying.value = !isPlaying.value;
-};
+  if (!audioRef.value) return
+  if (isPlaying.value) audioRef.value.pause()
+  else audioRef.value.play().catch(() => {})
+  isPlaying.value = !isPlaying.value
+}
 const playIndex = (index: number) => {
-  const targetSong = props.playlist[index];
-  if (!targetSong || !targetSong.unlocked) return;
+  const targetSong = props.playlist[index]
+  if (!targetSong || !targetSong.unlocked) return
   if (index === currentIndex.value) {
-    togglePlay();
-    return;
+    togglePlay()
+    return
   }
-  currentIndex.value = index;
-  isPlaying.value = true;
-  sliderValue.value = 0;
+  currentIndex.value = index
+  isPlaying.value = true
+  sliderValue.value = 0
   setTimeout(() => {
-    audioRef.value?.play();
-  }, 100);
-};
+    audioRef.value?.play()
+  }, 100)
+}
 const findNextUnlockedIndex = (direction: 1 | -1) => {
-  let tempIndex = currentIndex.value;
-  let loopCount = 0;
-  if (props.playlist.length === 0) return 0;
+  let tempIndex = currentIndex.value
+  let loopCount = 0
+  if (props.playlist.length === 0) return 0
   do {
-    tempIndex += direction;
-    if (tempIndex >= props.playlist.length) tempIndex = 0;
-    if (tempIndex < 0) tempIndex = props.playlist.length - 1;
-    loopCount++;
-    const song = props.playlist[tempIndex];
+    tempIndex += direction
+    if (tempIndex >= props.playlist.length) tempIndex = 0
+    if (tempIndex < 0) tempIndex = props.playlist.length - 1
+    loopCount++
+    const song = props.playlist[tempIndex]
     if (song && !song.unlocked && loopCount < props.playlist.length) {
       /* continue */
     } else {
-      break;
+      break
     }
-  } while (true);
-  return tempIndex;
-};
-const nextSong = () => playIndex(findNextUnlockedIndex(1));
-const prevSong = () => playIndex(findNextUnlockedIndex(-1));
+  } while (true)
+  return tempIndex
+}
+const nextSong = () => playIndex(findNextUnlockedIndex(1))
+const prevSong = () => playIndex(findNextUnlockedIndex(-1))
 const handleSliderInput = (val: number) => {
-  isDragging.value = true;
-  sliderValue.value = val;
-};
+  isDragging.value = true
+  sliderValue.value = val
+}
 const handleSliderChange = (val: number) => {
   if (audioRef.value) {
-    audioRef.value.currentTime = val;
-    if (!isPlaying.value) togglePlay();
+    audioRef.value.currentTime = val
+    if (!isPlaying.value) togglePlay()
   }
   setTimeout(() => {
-    isDragging.value = false;
-  }, 200);
-};
+    isDragging.value = false
+  }, 200)
+}
 const onTimeUpdate = () => {
-  if (!audioRef.value) return;
-  if (!isDragging.value) sliderValue.value = audioRef.value.currentTime;
-};
+  if (!audioRef.value) return
+  if (!isDragging.value) sliderValue.value = audioRef.value.currentTime
+}
 const updateDuration = () => {
   if (audioRef.value && !isNaN(audioRef.value.duration))
-    duration.value = audioRef.value.duration;
-};
+    duration.value = audioRef.value.duration
+}
 const onLoadedMetadata = () => {
-  updateDuration();
-  if (audioRef.value) audioRef.value.volume = volume.value / 100;
-};
-const onDurationChange = updateDuration;
+  updateDuration()
+  if (audioRef.value) audioRef.value.volume = volume.value / 100
+}
+const onDurationChange = updateDuration
 const onAudioError = () => {
   if (currentSong.value?.unlocked && isPlaying.value)
-    ElMessage.error("无法播放");
-};
+    ElMessage.error('无法播放')
+}
 const toggleMute = () => {
   if (volume.value > 0) {
-    lastVolume.value = volume.value;
-    volume.value = 0;
+    lastVolume.value = volume.value
+    volume.value = 0
   } else {
-    volume.value = lastVolume.value || 50;
+    volume.value = lastVolume.value || 50
   }
-};
+}
 const setVolume = () => {
-  if (audioRef.value) audioRef.value.volume = volume.value / 100;
-};
+  if (audioRef.value) audioRef.value.volume = volume.value / 100
+}
 const formatTime = (s: number) => {
-  if (!s || isNaN(s)) return "0:00";
-  const m = Math.floor(s / 60);
-  const sec = Math.floor(s % 60);
-  return `${m}:${sec.toString().padStart(2, "0")}`;
-};
+  if (!s || isNaN(s)) return '0:00'
+  const m = Math.floor(s / 60)
+  const sec = Math.floor(s % 60)
+  return `${m}:${sec.toString().padStart(2, '0')}`
+}
 watch(currentSong, () => {
-  duration.value = 0;
-});
-defineExpose({ togglePlay, nextSong, prevSong, toggleMute });
+  duration.value = 0
+})
+defineExpose({ togglePlay, nextSong, prevSong, toggleMute })
 </script>
 
 <style scoped>

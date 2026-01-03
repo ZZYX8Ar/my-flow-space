@@ -34,98 +34,98 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, nextTick } from "vue"; // 🔥 已移除 watch
-import * as echarts from "echarts";
+import { ref, computed, nextTick } from 'vue' // 🔥 已移除 watch
+import * as echarts from 'echarts'
 
 const props = defineProps<{
-  visible: boolean;
-}>();
+  visible: boolean
+}>()
 
-const emit = defineEmits(["update:visible"]);
+const emit = defineEmits(['update:visible'])
 
-const HISTORY_KEY = "flow-focus-history";
-const chartRef = ref<HTMLElement | null>(null);
-let myChart: echarts.ECharts | null = null;
+const HISTORY_KEY = 'flow-focus-history'
+const chartRef = ref<HTMLElement | null>(null)
+let myChart: echarts.ECharts | null = null
 
-const historyData = ref<any[]>([]);
+const historyData = ref<any[]>([])
 
 const totalMinutes = computed(() =>
   historyData.value.reduce((acc, cur) => acc + cur.minutes, 0)
-);
-const totalSessions = computed(() => historyData.value.length);
+)
+const totalSessions = computed(() => historyData.value.length)
 const todayMinutes = computed(() => {
-  const today = new Date().toISOString().split("T")[0];
+  const today = new Date().toISOString().split('T')[0]
   return historyData.value
     .filter((item) => item.date === today)
-    .reduce((acc, cur) => acc + cur.minutes, 0);
-});
+    .reduce((acc, cur) => acc + cur.minutes, 0)
+})
 
 const loadData = () => {
-  const saved = localStorage.getItem(HISTORY_KEY);
+  const saved = localStorage.getItem(HISTORY_KEY)
   if (saved) {
-    historyData.value = JSON.parse(saved);
+    historyData.value = JSON.parse(saved)
   }
-};
+}
 
 const handleClose = () => {
-  emit("update:visible", false);
-};
+  emit('update:visible', false)
+}
 
 const initChart = async () => {
-  loadData();
-  await nextTick();
-  if (!chartRef.value) return;
+  loadData()
+  await nextTick()
+  if (!chartRef.value) return
 
-  if (myChart) myChart.dispose();
-  myChart = echarts.init(chartRef.value);
+  if (myChart) myChart.dispose()
+  myChart = echarts.init(chartRef.value)
 
-  const dates = [];
-  const minutes = [];
+  const dates = []
+  const minutes = []
 
   for (let i = 6; i >= 0; i--) {
-    const d = new Date();
-    d.setDate(d.getDate() - i);
-    const dateStr = d.toISOString().split("T")[0];
-    const monthDay = `${d.getMonth() + 1}/${d.getDate()}`;
+    const d = new Date()
+    d.setDate(d.getDate() - i)
+    const dateStr = d.toISOString().split('T')[0]
+    const monthDay = `${d.getMonth() + 1}/${d.getDate()}`
 
-    dates.push(monthDay);
+    dates.push(monthDay)
 
     const dayTotal = historyData.value
       .filter((item) => item.date === dateStr)
-      .reduce((acc, cur) => acc + cur.minutes, 0);
-    minutes.push(dayTotal);
+      .reduce((acc, cur) => acc + cur.minutes, 0)
+    minutes.push(dayTotal)
   }
 
-  const styles = getComputedStyle(document.documentElement);
-  const textColor = styles.getPropertyValue("--text-color").trim() || "#fff";
+  const styles = getComputedStyle(document.documentElement)
+  const textColor = styles.getPropertyValue('--text-color').trim() || '#fff'
   const accentColor =
-    styles.getPropertyValue("--accent-color").trim() || "#ffd04b";
+    styles.getPropertyValue('--accent-color').trim() || '#ffd04b'
 
   const option = {
-    backgroundColor: "transparent",
+    backgroundColor: 'transparent',
     tooltip: {
-      trigger: "axis",
-      backgroundColor: "rgba(0,0,0,0.8)",
+      trigger: 'axis',
+      backgroundColor: 'rgba(0,0,0,0.8)',
       borderColor: accentColor,
-      textStyle: { color: "#fff" },
+      textStyle: { color: '#fff' },
     },
-    grid: { left: "3%", right: "4%", bottom: "3%", containLabel: true },
+    grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
     xAxis: {
-      type: "category",
+      type: 'category',
       data: dates,
       axisLine: { lineStyle: { color: textColor } },
       axisLabel: { color: textColor },
     },
     yAxis: {
-      type: "value",
-      splitLine: { lineStyle: { color: "rgba(255,255,255,0.1)" } },
+      type: 'value',
+      splitLine: { lineStyle: { color: 'rgba(255,255,255,0.1)' } },
       axisLabel: { color: textColor },
     },
     series: [
       {
-        name: "专注时长",
-        type: "bar",
-        barWidth: "40%",
+        name: '专注时长',
+        type: 'bar',
+        barWidth: '40%',
         data: minutes,
         itemStyle: {
           color: accentColor,
@@ -133,14 +133,14 @@ const initChart = async () => {
         },
       },
     ],
-  };
+  }
 
-  myChart.setOption(option);
-};
+  myChart.setOption(option)
+}
 
-window.addEventListener("resize", () => {
-  myChart?.resize();
-});
+window.addEventListener('resize', () => {
+  myChart?.resize()
+})
 </script>
 
 <style scoped>

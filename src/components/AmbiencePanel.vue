@@ -29,102 +29,102 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, nextTick, markRaw } from "vue";
-import { Pouring, Sunny, Monitor, Cloudy } from "@element-plus/icons-vue";
+import { ref, onMounted, watch, nextTick, markRaw } from 'vue'
+import { Pouring, Sunny, Monitor, Cloudy } from '@element-plus/icons-vue'
 
 interface SoundItem {
-  id: string;
-  name: string;
-  src: string;
-  volume: number;
-  icon: any;
-  audioEl?: HTMLAudioElement;
+  id: string
+  name: string
+  src: string
+  volume: number
+  icon: any
+  audioEl?: HTMLAudioElement
 }
-const STORAGE_KEY = "flow-ambience-settings";
+const STORAGE_KEY = 'flow-ambience-settings'
 const sounds = ref<SoundItem[]>([
   {
-    id: "rain",
-    name: "雨声",
-    src: "/sounds/rain.mp3",
+    id: 'rain',
+    name: '雨声',
+    src: '/sounds/rain.mp3',
     volume: 0,
     icon: markRaw(Pouring),
   },
   {
-    id: "fire",
-    name: "篝火",
-    src: "/sounds/fire.mp3",
+    id: 'fire',
+    name: '篝火',
+    src: '/sounds/fire.mp3',
     volume: 0,
     icon: markRaw(Sunny),
   },
   {
-    id: "keyboard",
-    name: "打字",
-    src: "/sounds/keyboard.mp3",
+    id: 'keyboard',
+    name: '打字',
+    src: '/sounds/keyboard.mp3',
     volume: 0,
     icon: markRaw(Monitor),
   },
   {
-    id: "bird",
-    name: "鸟鸣",
-    src: "/sounds/bird.mp3",
+    id: 'bird',
+    name: '鸟鸣',
+    src: '/sounds/bird.mp3',
     volume: 0,
     icon: markRaw(Cloudy),
   },
-]);
+])
 
 const setAudioRef = (el: any, sound: SoundItem) => {
-  if (el) sound.audioEl = el as HTMLAudioElement;
-};
+  if (el) sound.audioEl = el as HTMLAudioElement
+}
 const updateVolume = (sound: SoundItem, val: number) => {
-  if (!sound.audioEl) return;
-  sound.audioEl.volume = val / 100;
+  if (!sound.audioEl) return
+  sound.audioEl.volume = val / 100
   if (val > 0 && sound.audioEl.paused) {
-    sound.audioEl.play().catch(() => {});
+    sound.audioEl.play().catch(() => {})
   } else if (val === 0 && !sound.audioEl.paused) {
-    sound.audioEl.pause();
+    sound.audioEl.pause()
   }
-};
+}
 const toggleMute = (sound: SoundItem) => {
   if (sound.volume > 0) {
-    sound.volume = 0;
-    updateVolume(sound, 0);
+    sound.volume = 0
+    updateVolume(sound, 0)
   } else {
-    sound.volume = 50;
-    updateVolume(sound, 50);
+    sound.volume = 50
+    updateVolume(sound, 50)
   }
-  saveSettings();
-};
+  saveSettings()
+}
 const saveSettings = () => {
-  const settings: Record<string, number> = {};
-  sounds.value.forEach((s) => (settings[s.id] = s.volume));
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
-};
+  const settings: Record<string, number> = {}
+  sounds.value.forEach((s) => (settings[s.id] = s.volume))
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(settings))
+}
 const loadSettings = async () => {
-  const saved = localStorage.getItem(STORAGE_KEY);
+  const saved = localStorage.getItem(STORAGE_KEY)
   if (saved) {
     try {
-      const settings = JSON.parse(saved);
-      await nextTick();
+      const settings = JSON.parse(saved)
+      await nextTick()
       sounds.value.forEach((sound) => {
-        const savedVol = settings[sound.id];
-        if (typeof savedVol === "number") {
-          sound.volume = savedVol;
-          updateVolume(sound, savedVol);
+        const savedVol = settings[sound.id]
+        if (typeof savedVol === 'number') {
+          sound.volume = savedVol
+          updateVolume(sound, savedVol)
         }
-      });
+      })
     } catch (e) {}
   }
-};
+}
 watch(
   sounds,
   () => {
-    saveSettings();
+    saveSettings()
   },
   { deep: true }
-);
+)
 onMounted(() => {
-  loadSettings();
-});
+  loadSettings()
+})
 </script>
 
 <style scoped>

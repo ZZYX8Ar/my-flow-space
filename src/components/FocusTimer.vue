@@ -74,12 +74,12 @@ const isRunning = ref(false)
 const sessionDuration = ref(0)
 
 // 🔥 1. 新增：定义闹钟音效 (确保文件存在于 public/sounds/alarm.mp3)
-const alarmAudio = new Audio('./public/sounds/alarm.mp3')
+//const alarmAudio = new Audio('public/music/alarm.mp3')
 
 // 🔥🔥🔥 修改为：使用在线链接 (这是一个清脆的提示音) 🔥🔥🔥
-// const alarmAudio = new Audio(
-//   'https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3'
-// )
+const alarmAudio = new Audio(
+  'https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3'
+)
 
 let timerInterval: any = null
 

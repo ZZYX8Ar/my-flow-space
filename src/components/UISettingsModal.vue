@@ -11,7 +11,7 @@
       <!-- 1. 缩放设置 -->
       <div class="group-title">尺寸与缩放</div>
       <div class="setting-item">
-        <span class="label">整体 UI 缩放 (不含时钟/播放器)</span>
+        <span class="label">整体 UI 缩放</span>
         <el-slider
           v-model="settings.scale"
           :min="0.5"
@@ -173,7 +173,7 @@ const handleClose = () => {
 
 const resetSettings = () => {
   const defaults: UISettings = {
-    scale: 1,
+    scale: 0.85,
     clockScale: 1.05,
     opacity: 0.9,
     textGlow: 7,

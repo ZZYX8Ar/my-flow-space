@@ -18,7 +18,7 @@ export const defaultItems: GameItem[] = [
     id: 'bg1',
     type: 'background',
     name: '默认背景',
-    src: '/bg.gif',
+    src: '/wallpapers/bg.gif',
     price: 0,
     unlocked: true,
   },

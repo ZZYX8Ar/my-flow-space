@@ -349,19 +349,19 @@ const loadCustomAssets = async () => {
 }
 
 const uiSettings = reactive<UISettings>({
-  scale: 1,
-  opacity: 0.8,
+  scale: 0.85,
+  opacity: 0.9,
   textGlow: 7,
-  clockScale: 1.0,
+  clockScale: 1.05,
   showPanel: true,
-  panelBgOpacity: 0.8,
-  panelBorderGlow: 5,
+  panelBgOpacity: 0.3,
+  panelBorderGlow: 8,
 })
 const petSettings = reactive<PetSettings>({
   currentPetId: 'cat',
   scale: 3,
-  opacity: 1,
-  walkSpeed: 1,
+  opacity: 0.5,
+  walkSpeed: 0.5,
   affection: 0,
   unlockedSets: [],
   petAffections: {}, // 🔥 初始化为空对象
@@ -976,7 +976,6 @@ const handlePetPositionSave = (pos: { x: number; y: number }) => {
   petSettings.x = pos.x
   petSettings.y = pos.y
   savePetSettings()
-  console.log('位置已保存:', pos) // 调试用
 }
 const handleFeedPet = (snack: GameItem) => {
   coins.value -= snack.price

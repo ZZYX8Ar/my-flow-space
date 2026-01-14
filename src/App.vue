@@ -114,12 +114,22 @@
             ><div class="tool-btn" @click="toggleFullscreen">
               <el-icon><FullScreen /></el-icon></div
           ></el-tooltip>
+
+          <!-- 🔥 新增：自动隐藏开关按钮 -->
+<el-tooltip :content="autoHideEnabled ? '自动隐藏已开启 (J)' : '自动隐藏已关闭 (J)'" placement="bottom">
+  <div class="tool-btn" :class="{ 'is-active': autoHideEnabled }" @click="toggleAutoHide">
+    <el-icon v-if="autoHideEnabled"><View /></el-icon>
+    <el-icon v-else><Hide /></el-icon>
+  </div>
+</el-tooltip>
+
           <el-tooltip content="空间商店 (S)" placement="bottom"
             ><div class="tool-btn" @click="shopVisible = true">
               <el-icon><Shop /></el-icon></div
           ></el-tooltip>
 
-          <el-tooltip content="排行榜" placement="bottom">
+
+          <el-tooltip content="排行榜(R)" placement="bottom">
             <div class="tool-btn" @click="rankingVisible = true">
               <el-icon><Trophy /></el-icon>
             </div>
@@ -199,6 +209,8 @@ import {
   Operation,
   Orange,
   Calendar,
+  View, 
+  Hide
 } from '@element-plus/icons-vue'
 import { ElMessage, ElNotification } from 'element-plus'
 import TodoList from './components/TodoList.vue'
@@ -382,13 +394,33 @@ const savePetSettings = () => {
 
 const isIdle = ref(false)
 let idleTimer: any = null
-const resetIdleTimer = () => {
-  isIdle.value = false
-  if (idleTimer) clearTimeout(idleTimer)
-  idleTimer = setTimeout(() => {
-    isIdle.value = true
-  }, 5000)
-}
+// 🔥 新增：自动隐藏开关状态
+const autoHideEnabled = ref(true); // 默认开启
+// 🔥 修改：resetIdleTimer 增加开关判断
+const resetIdleTimer = () => { 
+  isIdle.value = false; 
+  if (idleTimer) clearTimeout(idleTimer); 
+  
+  // 只有开启了自动隐藏，才启动计时器
+  if (autoHideEnabled.value) {
+    idleTimer = setTimeout(() => { isIdle.value = true; }, 5000); // 改为 5秒
+  }
+};
+
+// 🔥 新增：切换自动隐藏函数
+const toggleAutoHide = () => {
+  autoHideEnabled.value = !autoHideEnabled.value;
+  localStorage.setItem('flow-auto-hide', autoHideEnabled.value.toString());
+  
+  if (autoHideEnabled.value) {
+    ElMessage.success('自动隐藏已开启 (5秒无操作)');
+    resetIdleTimer(); // 立即启动计时
+  } else {
+    ElMessage.info('自动隐藏已关闭 (常亮模式)');
+    if (idleTimer) clearTimeout(idleTimer);
+    isIdle.value = false; // 立即显示 UI
+  }
+};
 
 const draggingItem = ref<GameItem | null>(null)
 const resizingItem = ref<GameItem | null>(null)
@@ -494,6 +526,12 @@ const loadData = () => {
     } catch (e) {}
   }
 
+  // 🔥 新增：加载自动隐藏设置
+  const savedAutoHide = localStorage.getItem('flow-auto-hide');
+  if (savedAutoHide !== null) {
+    autoHideEnabled.value = savedAutoHide === 'true';
+  }
+
   applyGlobalStyles()
 }
 
@@ -509,6 +547,8 @@ const saveData = () => {
   localStorage.setItem('flow-items-state', JSON.stringify(stateToSave))
   localStorage.setItem('flow-coins', coins.value.toString())
   localStorage.setItem(AUTO_BG_KEY, autoBgEnabled.value.toString())
+   // 🔥 新增：保存自动隐藏设置
+  localStorage.setItem('flow-auto-hide', autoHideEnabled.value.toString());
 }
 
 const AUTO_BG_KEY = 'flow-auto-bg'
@@ -1092,6 +1132,15 @@ const handleKeydown = (e: KeyboardEvent) => {
       e.preventDefault()
       calendarVisible.value = !calendarVisible.value
       break
+       // 🔥 新增快捷键
+    case 'KeyJ': // J: 切换自动隐藏
+      e.preventDefault(); 
+      toggleAutoHide(); 
+      break;
+    case 'KeyR': // R: 打开排行榜
+      e.preventDefault(); 
+      rankingVisible.value = !rankingVisible.value; // 注意：你需要确保有 rankingVisible 变量
+      break;
   }
 }
 // 修改 onMounted

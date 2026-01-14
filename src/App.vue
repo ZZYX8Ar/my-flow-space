@@ -1212,6 +1212,7 @@ html {
   height: 100vh;
   color: var(--text-color);
   font-family: var(--font-family);
+  
 }
 .background-wrapper {
   position: absolute;

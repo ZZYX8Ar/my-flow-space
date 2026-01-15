@@ -9,20 +9,9 @@
           </el-icon>
           <span class="sound-name">{{ sound.name }}</span>
         </div>
-        <el-slider
-          v-model="sound.volume"
-          :max="100"
-          :format-tooltip="(val: number) => `${val}%`"
-          size="small"
-          @input="(val: number) => updateVolume(sound, val)"
-          @change="saveSettings"
-        />
-        <audio
-          :ref="(el) => setAudioRef(el, sound)"
-          :src="sound.src"
-          loop
-          preload="auto"
-        ></audio>
+        <el-slider v-model="sound.volume" :max="100" :format-tooltip="(val: number) => `${val}%`" size="small"
+          @input="(val: number) => updateVolume(sound, val)" @change="saveSettings" />
+        <audio :ref="(el) => setAudioRef(el, sound)" :src="sound.src" loop preload="auto"></audio>
       </div>
     </div>
   </div>
@@ -79,7 +68,7 @@ const updateVolume = (sound: SoundItem, val: number) => {
   if (!sound.audioEl) return
   sound.audioEl.volume = val / 100
   if (val > 0 && sound.audioEl.paused) {
-    sound.audioEl.play().catch(() => {})
+    sound.audioEl.play().catch(() => { })
   } else if (val === 0 && !sound.audioEl.paused) {
     sound.audioEl.pause()
   }
@@ -112,7 +101,7 @@ const loadSettings = async () => {
           updateVolume(sound, savedVol)
         }
       })
-    } catch (e) {}
+    } catch (e) { }
   }
 }
 watch(
@@ -164,15 +153,19 @@ onMounted(() => {
   cursor: pointer;
   user-select: none;
 }
+
 :deep(.el-slider__bar) {
   background-color: var(--accent-color) !important;
 }
+
 :deep(.el-slider__button) {
   border-color: var(--accent-color) !important;
 }
+
 .sound-info:hover {
   color: var(--accent-color);
 }
+
 .active {
   color: var(--accent-color);
 }

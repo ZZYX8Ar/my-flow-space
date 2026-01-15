@@ -1,36 +1,18 @@
 <template>
-  <el-dialog
-    :model-value="visible"
-    title="界面个性化设置"
-    width="400px"
-    center
-    :before-close="handleClose"
-    class="ui-settings-dialog"
-  >
+  <el-dialog :model-value="visible" title="界面个性化设置" width="400px" center :before-close="handleClose"
+    class="ui-settings-dialog">
     <div class="settings-container">
       <!-- 1. 缩放设置 -->
       <div class="group-title">尺寸与缩放</div>
       <div class="setting-item">
         <span class="label">整体 UI 缩放</span>
-        <el-slider
-          v-model="settings.scale"
-          :min="0.5"
-          :max="1.5"
-          :step="0.05"
-          :format-tooltip="(v: number) => `x${v}`"
-          @input="emitChange"
-        />
+        <el-slider v-model="settings.scale" :min="0.5" :max="1.5" :step="0.05" :format-tooltip="(v: number) => `x${v}`"
+          @input="emitChange" />
       </div>
       <div class="setting-item">
         <span class="label">桌面时钟大小</span>
-        <el-slider
-          v-model="settings.clockScale"
-          :min="0.5"
-          :max="3.0"
-          :step="0.05"
-          :format-tooltip="(v: number) => `x${v}`"
-          @input="emitChange"
-        />
+        <el-slider v-model="settings.clockScale" :min="0.5" :max="3.0" :step="0.05"
+          :format-tooltip="(v: number) => `x${v}`" @input="emitChange" />
       </div>
 
       <!-- 2. 面板样式设置 -->
@@ -45,23 +27,12 @@
       <template v-if="settings.showPanel">
         <div class="setting-item">
           <span class="label">面板底色不透明度</span>
-          <el-slider
-            v-model="settings.panelBgOpacity"
-            :min="0"
-            :max="1"
-            :step="0.05"
-            :format-tooltip="(v: number) => `${Math.round(v*100)}%`"
-            @input="emitChange"
-          />
+          <el-slider v-model="settings.panelBgOpacity" :min="0" :max="1" :step="0.05"
+            :format-tooltip="(v: number) => `${Math.round(v * 100)}%`" @input="emitChange" />
         </div>
         <div class="setting-item">
           <span class="label">面板边框发光</span>
-          <el-slider
-            v-model="settings.panelBorderGlow"
-            :min="0"
-            :max="20"
-            @input="emitChange"
-          />
+          <el-slider v-model="settings.panelBorderGlow" :min="0" :max="20" @input="emitChange" />
         </div>
       </template>
 
@@ -69,34 +40,20 @@
       <div class="group-title">全局效果</div>
       <div class="setting-item">
         <span class="label">整体透明度 (淡出效果)</span>
-        <el-slider
-          v-model="settings.opacity"
-          :min="0"
-          :max="1"
-          :step="0.05"
-          :format-tooltip="(v: number) => `${Math.round(v*100)}%`"
-          @input="emitChange"
-        />
+        <el-slider v-model="settings.opacity" :min="0" :max="1" :step="0.05"
+          :format-tooltip="(v: number) => `${Math.round(v * 100)}%`" @input="emitChange" />
       </div>
       <div class="setting-item">
         <span class="label">文字/图标发光强度</span>
-        <el-slider
-          v-model="settings.textGlow"
-          :min="0"
-          :max="30"
-          @input="emitChange"
-        />
+        <el-slider v-model="settings.textGlow" :min="0" :max="30" @input="emitChange" />
       </div>
 
       <!-- 🔥🔥🔥 4. 新增：数据管理区域 🔥🔥🔥 -->
-      <div
-        class="group-title"
-        style="
+      <div class="group-title" style="
           margin-top: 20px;
           border-top: 1px solid rgba(255, 255, 255, 0.1);
           padding-top: 10px;
-        "
-      >
+        ">
         数据存档管理
       </div>
       <div class="data-actions">
@@ -109,13 +66,7 @@
             📥 导入存档 (恢复)
           </button>
           <!-- 隐藏的文件输入框 -->
-          <input
-            type="file"
-            ref="fileInput"
-            accept=".json"
-            style="display: none"
-            @change="handleImport"
-          />
+          <input type="file" ref="fileInput" accept=".json" style="display: none" @change="handleImport" />
         </div>
 
         <button class="action-btn reset-danger-btn" @click="handleResetAll">
@@ -173,8 +124,8 @@ const handleClose = () => {
 
 const resetSettings = () => {
   const defaults: UISettings = {
-    scale: 0.85,
-    clockScale: 1.05,
+    scale: 1.0,
+    clockScale: 1.0,
     opacity: 0.9,
     textGlow: 7,
     showPanel: true,
@@ -278,7 +229,7 @@ const handleResetAll = () => {
       localStorage.clear()
       location.reload()
     })
-    .catch(() => {})
+    .catch(() => { })
 }
 </script>
 
@@ -288,6 +239,7 @@ const handleResetAll = () => {
   max-height: 500px;
   overflow-y: auto;
 }
+
 .group-title {
   font-size: 12px;
   color: var(--accent-color);
@@ -295,14 +247,17 @@ const handleResetAll = () => {
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   padding-bottom: 2px;
 }
+
 .setting-item {
   margin-bottom: 15px;
 }
+
 .switch-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
+
 .label {
   display: block;
   margin-bottom: 5px;
@@ -326,6 +281,7 @@ const handleResetAll = () => {
   margin-top: 30px;
   font-size: 12px;
 }
+
 .reset-btn:hover {
   opacity: 1;
   background: rgba(255, 255, 255, 0.1);
@@ -338,6 +294,7 @@ const handleResetAll = () => {
   gap: 10px;
   margin-top: 10px;
 }
+
 .action-btn {
   width: 100%;
   padding: 10px;
@@ -350,6 +307,7 @@ const handleResetAll = () => {
   background: transparent;
   color: var(--text-color);
 }
+
 .action-btn:hover {
   background: rgba(255, 255, 255, 0.1);
   transform: translateY(-1px);
@@ -362,6 +320,7 @@ const handleResetAll = () => {
   margin-top: 10px;
   opacity: 0.8;
 }
+
 .reset-danger-btn:hover {
   background: #f56c6c;
   color: #fff;
@@ -371,13 +330,16 @@ const handleResetAll = () => {
 :deep(.el-slider__bar) {
   background-color: var(--accent-color);
 }
+
 :deep(.el-slider__button) {
   border-color: var(--accent-color);
 }
+
 :deep(.el-switch__core) {
   border-color: var(--text-color);
   background: transparent;
 }
+
 :deep(.el-switch.is-checked .el-switch__core) {
   border-color: var(--accent-color);
   background: var(--accent-color);
@@ -391,10 +353,12 @@ const handleResetAll = () => {
   border-radius: var(--border-radius) !important;
   backdrop-filter: blur(10px);
 }
+
 .ui-settings-dialog .el-dialog__title {
   color: var(--text-color) !important;
   font-family: inherit;
 }
+
 .ui-settings-dialog .el-dialog__headerbtn .el-dialog__close {
   color: var(--text-color) !important;
 }

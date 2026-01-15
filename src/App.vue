@@ -1,67 +1,34 @@
 <template>
-  <div
-    class="game-container"
-    :style="themeStyles"
-    @mousemove="handleGlobalMouseMove"
-    @click="resetIdleTimer"
-    @mouseup="stopAction"
-    @mouseleave="stopAction"
-  >
+  <div class="game-container" :style="themeStyles" @mousemove="handleGlobalMouseMove" @click="resetIdleTimer"
+    @mouseup="stopAction" @mouseleave="stopAction">
+
+    <TitleBar />
+
     <transition-group name="fade" tag="div" class="background-wrapper">
-      <video
-        v-if="isVideo(currentBg)"
-        :key="'video-' + currentBg"
-        :src="currentBg"
-        class="bg-media"
-        autoplay
-        loop
-        muted
-        playsinline
-      ></video>
-      <img
-        v-else
-        :key="'img-' + currentBg"
-        :src="currentBg"
-        alt="background"
-        class="bg-media"
-      />
+      <video v-if="isVideo(currentBg)" :key="'video-' + currentBg" :src="currentBg" class="bg-media" autoplay loop muted
+        playsinline></video>
+      <img v-else :key="'img-' + currentBg" :src="currentBg" alt="background" class="bg-media" />
     </transition-group>
 
-    <DesktopPet
-      ref="petRef"
-      :pet-id="petSettings.currentPetId"
-      :scale="petSettings.scale"
-      :opacity="petSettings.opacity"
-      :walk-speed="petSettings.walkSpeed"
-      :affection="petSettings.affection"
-      :initial-x="petSettings.x"
-      :initial-y="petSettings.y"
-      @add-affection="handleAffectionUpdate"
-      @save-pos="handlePetPositionSave"
-    />
+    <DesktopPet ref="petRef" :pet-id="petSettings.currentPetId" :scale="petSettings.scale"
+      :opacity="petSettings.opacity" :walk-speed="petSettings.walkSpeed" :affection="petSettings.affection"
+      :initial-x="petSettings.x" :initial-y="petSettings.y" @add-affection="handleAffectionUpdate"
+      @save-pos="handlePetPositionSave" />
 
     <div class="ui-layer">
       <div class="decor-layer">
-        <div
-          v-for="decor in activeDecors"
-          :key="decor.id"
-          class="decor-wrapper"
-          :class="{
-            'is-interacting':
-              draggingItem?.id === decor.id || resizingItem?.id === decor.id,
-          }"
-          :style="{ left: decor.x, top: decor.y, width: decor.width }"
-          @mousedown.stop="(e) => startDrag(e, decor)"
-        >
+        <div v-for="decor in activeDecors" :key="decor.id" class="decor-wrapper" :class="{
+          'is-interacting':
+            draggingItem?.id === decor.id || resizingItem?.id === decor.id,
+        }" :style="{ left: decor.x, top: decor.y, width: decor.width }" @mousedown.stop="(e) => startDrag(e, decor)">
           <div class="decor-box">
             <div class="close-btn" @mousedown.stop="removeDecor(decor)">
-              <el-icon><CircleCloseFilled /></el-icon>
+              <el-icon>
+                <CircleCloseFilled />
+              </el-icon>
             </div>
             <img :src="decor.src" alt="decor" class="decor-img" />
-            <div
-              class="resize-handle"
-              @mousedown.stop="(e) => startResize(e, decor)"
-            ></div>
+            <div class="resize-handle" @mousedown.stop="(e) => startResize(e, decor)"></div>
           </div>
         </div>
       </div>
@@ -74,64 +41,85 @@
       <div class="top-right-zone">
         <div class="hud-item toolbar ui-fade" :class="{ 'ui-hidden': isIdle }">
           <div class="coin-display">
-            <el-icon class="coin-icon" size="20"><Coin /></el-icon>
+            <el-icon class="coin-icon" size="20">
+              <Coin />
+            </el-icon>
             <span class="coin-text">{{ coins }}</span>
           </div>
 
-          <el-tooltip content="我的桌宠(P)" placement="bottom"
-            ><div class="tool-btn" @click="petModalVisible = true">
-              <el-icon><Orange /></el-icon></div
-          ></el-tooltip>
-          <el-tooltip content="界面设置 (H)" placement="bottom"
-            ><div class="tool-btn" @click="uiSettingsVisible = true">
-              <el-icon><Operation /></el-icon></div
-          ></el-tooltip>
-          <el-tooltip
-            :content="
-              autoBgEnabled ? '自动切换已开启 (A)' : '自动切换已关闭 (A)'
-            "
-            placement="bottom"
-            ><div
-              class="tool-btn"
-              :class="{ 'is-active': autoBgEnabled }"
-              @click="toggleAutoBackground"
-            >
-              <el-icon><Refresh /></el-icon></div
-          ></el-tooltip>
+          <el-tooltip content="我的桌宠(P)" placement="bottom">
+            <div class="tool-btn" @click="petModalVisible = true">
+              <el-icon>
+                <Orange />
+              </el-icon>
+            </div>
+          </el-tooltip>
+          <el-tooltip content="界面设置 (H)" placement="bottom">
+            <div class="tool-btn" @click="uiSettingsVisible = true">
+              <el-icon>
+                <Operation />
+              </el-icon>
+            </div>
+          </el-tooltip>
+          <el-tooltip :content="autoBgEnabled ? '自动切换已开启 (A)' : '自动切换已关闭 (A)'
+            " placement="bottom">
+            <div class="tool-btn" :class="{ 'is-active': autoBgEnabled }" @click="toggleAutoBackground">
+              <el-icon>
+                <Refresh />
+              </el-icon>
+            </div>
+          </el-tooltip>
 
           <!-- 🔥🔥🔥 4. 在这里插入日历按钮 🔥🔥🔥 -->
           <el-tooltip content="专注日历 (D)" placement="bottom">
             <div class="tool-btn" @click="calendarVisible = true">
-              <el-icon><Calendar /></el-icon>
+              <el-icon>
+                <Calendar />
+              </el-icon>
             </div>
           </el-tooltip>
 
-          <el-tooltip content="数据统计 (L)" placement="bottom"
-            ><div class="tool-btn" @click="statsVisible = true">
-              <el-icon><TrendCharts /></el-icon></div
-          ></el-tooltip>
-          <el-tooltip content="切换全屏 (F)" placement="bottom"
-            ><div class="tool-btn" @click="toggleFullscreen">
-              <el-icon><FullScreen /></el-icon></div
-          ></el-tooltip>
+          <el-tooltip content="数据统计 (L)" placement="bottom">
+            <div class="tool-btn" @click="statsVisible = true">
+              <el-icon>
+                <TrendCharts />
+              </el-icon>
+            </div>
+          </el-tooltip>
+          <el-tooltip content="切换全屏 (F)" placement="bottom">
+            <div class="tool-btn" @click="toggleFullscreen">
+              <el-icon>
+                <FullScreen />
+              </el-icon>
+            </div>
+          </el-tooltip>
 
           <!-- 🔥 新增：自动隐藏开关按钮 -->
-<el-tooltip :content="autoHideEnabled ? '自动隐藏已开启 (J)' : '自动隐藏已关闭 (J)'" placement="bottom">
-  <div class="tool-btn" :class="{ 'is-active': autoHideEnabled }" @click="toggleAutoHide">
-    <el-icon v-if="autoHideEnabled"><View /></el-icon>
-    <el-icon v-else><Hide /></el-icon>
-  </div>
-</el-tooltip>
+          <el-tooltip :content="autoHideEnabled ? '自动隐藏已开启 (J)' : '自动隐藏已关闭 (J)'" placement="bottom">
+            <div class="tool-btn" :class="{ 'is-active': autoHideEnabled }" @click="toggleAutoHide">
+              <el-icon v-if="autoHideEnabled">
+                <View />
+              </el-icon>
+              <el-icon v-else>
+                <Hide />
+              </el-icon>
+            </div>
+          </el-tooltip>
 
-          <el-tooltip content="空间商店 (S)" placement="bottom"
-            ><div class="tool-btn" @click="shopVisible = true">
-              <el-icon><Shop /></el-icon></div
-          ></el-tooltip>
+          <el-tooltip content="空间商店 (S)" placement="bottom">
+            <div class="tool-btn" @click="shopVisible = true">
+              <el-icon>
+                <Shop />
+              </el-icon>
+            </div>
+          </el-tooltip>
 
 
           <el-tooltip content="排行榜(R)" placement="bottom">
             <div class="tool-btn" @click="rankingVisible = true">
-              <el-icon><Trophy /></el-icon>
+              <el-icon>
+                <Trophy />
+              </el-icon>
             </div>
           </el-tooltip>
         </div>
@@ -145,10 +133,7 @@
       <div class="hud-item desk-clock-pos custom-clock-scale">
         <DeskClock />
       </div>
-      <div
-        class="hud-item bottom-right ui-fade"
-        :class="{ 'ui-hidden': isIdle }"
-      >
+      <div class="hud-item bottom-right ui-fade" :class="{ 'ui-hidden': isIdle }">
         <AmbiencePanel />
       </div>
     </div>
@@ -157,42 +142,18 @@
       <MusicBar ref="musicBarRef" :playlist="musicList" />
     </div>
 
-    <ShopModal
-      v-model:visible="shopVisible"
-      :user-coins="coins"
-      :items="allItems"
-      :current-bg="currentBg"
-      :current-theme="currentThemeId"
-      :current-font="currentFontId"
-      :current-pet-id="petSettings.currentPetId"
-      @buy="handleBuy"
-      @equip="handleEquip"
-      @equip-pet="handleEquipPet"
-      @toggle-decor="handleToggleDecor"
-    />
+    <ShopModal v-model:visible="shopVisible" :user-coins="coins" :items="allItems" :current-bg="currentBg"
+      :current-theme="currentThemeId" :current-font="currentFontId" :current-pet-id="petSettings.currentPetId"
+      @buy="handleBuy" @equip="handleEquip" @equip-pet="handleEquipPet" @toggle-decor="handleToggleDecor" />
     <StatsModal v-model:visible="statsVisible" />
-    <UISettingsModal
-      v-model:visible="uiSettingsVisible"
-      :initial-settings="uiSettings"
-      @change="updateUISettings"
-      @save="saveUISettings"
-    />
-    <PetControlModal
-      v-model:visible="petModalVisible"
-      :settings="petSettings"
-      :snacks="snackList"
-      :user-coins="coins"
-      :current-pet-id="petSettings.currentPetId"
-      @change="savePetSettings"
-      @feed="handleFeedPet"
-    />
+    <UISettingsModal v-model:visible="uiSettingsVisible" :initial-settings="uiSettings" @change="updateUISettings"
+      @save="saveUISettings" />
+    <PetControlModal v-model:visible="petModalVisible" :settings="petSettings" :snacks="snackList" :user-coins="coins"
+      :current-pet-id="petSettings.currentPetId" @change="savePetSettings" @feed="handleFeedPet" />
   </div>
 
   <!-- 底部 -->
-  <RankingModal
-    v-model:visible="rankingVisible"
-    :current-stats="currentStats"
-  />
+  <RankingModal v-model:visible="rankingVisible" :current-stats="currentStats" />
 
   <CalendarModal v-model:visible="calendarVisible" />
 </template>
@@ -209,7 +170,7 @@ import {
   Operation,
   Orange,
   Calendar,
-  View, 
+  View,
   Hide
 } from '@element-plus/icons-vue'
 import { ElMessage, ElNotification } from 'element-plus'
@@ -232,6 +193,7 @@ import { getAllAssets } from './utils/db' // 🔥 引入 DB 工具
 import { Trophy } from '@element-plus/icons-vue' // 引入奖杯图标
 import RankingModal from './components/RankingModal.vue'
 import { uploadScore } from './utils/supabase'
+import TitleBar from './components/TitleBar.vue'
 
 const coins = ref(0)
 const allItems = ref<GameItem[]>(JSON.parse(JSON.stringify(defaultItems)))
@@ -397,10 +359,10 @@ let idleTimer: any = null
 // 🔥 新增：自动隐藏开关状态
 const autoHideEnabled = ref(true); // 默认开启
 // 🔥 修改：resetIdleTimer 增加开关判断
-const resetIdleTimer = () => { 
-  isIdle.value = false; 
-  if (idleTimer) clearTimeout(idleTimer); 
-  
+const resetIdleTimer = () => {
+  isIdle.value = false;
+  if (idleTimer) clearTimeout(idleTimer);
+
   // 只有开启了自动隐藏，才启动计时器
   if (autoHideEnabled.value) {
     idleTimer = setTimeout(() => { isIdle.value = true; }, 5000); // 改为 5秒
@@ -411,7 +373,7 @@ const resetIdleTimer = () => {
 const toggleAutoHide = () => {
   autoHideEnabled.value = !autoHideEnabled.value;
   localStorage.setItem('flow-auto-hide', autoHideEnabled.value.toString());
-  
+
   if (autoHideEnabled.value) {
     ElMessage.success('自动隐藏已开启 (5秒无操作)');
     resetIdleTimer(); // 立即启动计时
@@ -508,7 +470,7 @@ const loadData = () => {
   if (savedUI) {
     try {
       Object.assign(uiSettings, JSON.parse(savedUI))
-    } catch (e) {}
+    } catch (e) { }
   }
   const savedPet = localStorage.getItem('flow-pet-settings')
   if (savedPet) {
@@ -523,7 +485,7 @@ const loadData = () => {
         petSettings.petAffections[petSettings.currentPetId] =
           petSettings.affection
       }
-    } catch (e) {}
+    } catch (e) { }
   }
 
   // 🔥 新增：加载自动隐藏设置
@@ -547,7 +509,7 @@ const saveData = () => {
   localStorage.setItem('flow-items-state', JSON.stringify(stateToSave))
   localStorage.setItem('flow-coins', coins.value.toString())
   localStorage.setItem(AUTO_BG_KEY, autoBgEnabled.value.toString())
-   // 🔥 新增：保存自动隐藏设置
+  // 🔥 新增：保存自动隐藏设置
   localStorage.setItem('flow-auto-hide', autoHideEnabled.value.toString());
 }
 
@@ -844,9 +806,8 @@ const themeStyles = computed(() => {
   const textGlowVal = uiSettings.textGlow
   const textShadow =
     textGlowVal > 0
-      ? `0 0 ${textGlowVal}px var(--accent-color), 0 0 ${
-          textGlowVal * 2
-        }px var(--accent-color)`
+      ? `0 0 ${textGlowVal}px var(--accent-color), 0 0 ${textGlowVal * 2
+      }px var(--accent-color)`
       : 'none'
   const btnDropShadow =
     textGlowVal > 0
@@ -1079,7 +1040,7 @@ const handleFocusFinish = (minutes: number) => {
 }
 const toggleFullscreen = () => {
   if (!document.fullscreenElement)
-    document.documentElement.requestFullscreen().catch(() => {})
+    document.documentElement.requestFullscreen().catch(() => { })
   else if (document.exitFullscreen) document.exitFullscreen()
 }
 const handleKeydown = (e: KeyboardEvent) => {
@@ -1132,13 +1093,13 @@ const handleKeydown = (e: KeyboardEvent) => {
       e.preventDefault()
       calendarVisible.value = !calendarVisible.value
       break
-       // 🔥 新增快捷键
+    // 🔥 新增快捷键
     case 'KeyJ': // J: 切换自动隐藏
-      e.preventDefault(); 
-      toggleAutoHide(); 
+      e.preventDefault();
+      toggleAutoHide();
       break;
     case 'KeyR': // R: 打开排行榜
-      e.preventDefault(); 
+      e.preventDefault();
       rankingVisible.value = !rankingVisible.value; // 注意：你需要确保有 rankingVisible 变量
       break;
   }
@@ -1170,9 +1131,11 @@ html {
   overflow: hidden;
   background-color: #1a1a1a;
 }
+
 #app {
   height: 100%;
 }
+
 html {
   font-family: var(--font-family, 'DotGothic16', monospace);
 }
@@ -1182,15 +1145,18 @@ html {
   width: 6px;
   height: 6px;
 }
+
 ::-webkit-scrollbar-track {
   background: rgba(0, 0, 0, 0.1);
   border-radius: 4px;
 }
+
 ::-webkit-scrollbar-thumb {
   background: var(--accent-color);
   border-radius: 4px;
   transition: background 0.2s;
 }
+
 ::-webkit-scrollbar-thumb:hover {
   background: var(--text-color);
 }
@@ -1212,8 +1178,9 @@ html {
   height: 100vh;
   color: var(--text-color);
   font-family: var(--font-family);
-  
+
 }
+
 .background-wrapper {
   position: absolute;
   top: 0;
@@ -1224,6 +1191,7 @@ html {
   overflow: hidden;
   background-color: #000;
 }
+
 .bg-media {
   position: absolute;
   top: 0;
@@ -1234,14 +1202,17 @@ html {
   will-change: transform;
   transform: translateZ(0);
 }
+
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 1s ease;
 }
+
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
 }
+
 .ui-layer {
   position: absolute;
   top: 0;
@@ -1272,8 +1243,7 @@ html {
 }
 
 .hud-item.custom-clock-scale {
-  transform: rotate(-2deg) scale(calc(var(--ui-scale) * var(--ui-clock-scale)))
-    translateZ(0) !important;
+  transform: rotate(-2deg) scale(calc(var(--ui-scale) * var(--ui-clock-scale))) translateZ(0) !important;
 }
 
 :deep(.todo-card),
@@ -1301,12 +1271,14 @@ html {
   /* 改用变量 */
   border: var(--ui-btn-border) !important;
   background: var(--ui-btn-bg) !important;
-  transition: all 0.3s ease; /* 加个过渡更好看 */
+  transition: all 0.3s ease;
+  /* 加个过渡更好看 */
 }
 
 /* 悬停时稍微加深一点背景，或者保持原样 */
 :deep(.timer-card .main-btn:hover) {
-  background: rgba(255, 255, 255, 0.2) !important; /* 悬停时给一点反馈 */
+  background: rgba(255, 255, 255, 0.2) !important;
+  /* 悬停时给一点反馈 */
   border-color: var(--accent-color) !important;
 }
 
@@ -1329,22 +1301,27 @@ html {
   border: var(--ui-panel-border);
   box-shadow: var(--ui-panel-box-shadow);
 }
+
 .coin-text {
   font-family: inherit;
   font-size: 24px;
   line-height: 1;
   color: var(--accent-color);
 }
+
 .coin-icon {
   color: var(--accent-color);
 }
+
 .ui-fade {
   transition: opacity 0.5s ease-in-out, transform 0.5s ease;
 }
+
 .ui-hidden {
   opacity: 0 !important;
   pointer-events: none;
 }
+
 .decor-layer {
   position: absolute;
   top: 0;
@@ -1354,11 +1331,13 @@ html {
   pointer-events: none;
   z-index: 5;
 }
+
 .decor-wrapper {
   position: absolute;
   pointer-events: auto;
   user-select: none;
 }
+
 .decor-box {
   position: relative;
   width: 100%;
@@ -1366,9 +1345,11 @@ html {
   border: 2px solid transparent;
   cursor: grab;
 }
+
 .decor-box:active {
   cursor: grabbing;
 }
+
 .decor-img {
   width: 100%;
   display: block;
@@ -1376,6 +1357,7 @@ html {
   filter: drop-shadow(0 5px 5px rgba(0, 0, 0, 0.5));
   pointer-events: none;
 }
+
 .resize-handle {
   position: absolute;
   bottom: -6px;
@@ -1389,6 +1371,7 @@ html {
   display: none;
   z-index: 10;
 }
+
 .close-btn {
   position: absolute;
   top: -10px;
@@ -1401,19 +1384,23 @@ html {
   background: white;
   border-radius: 50%;
 }
+
 .decor-wrapper:hover .decor-box,
 .decor-wrapper.is-interacting .decor-box {
   border-color: var(--accent-color);
   background: rgba(255, 255, 255, 0.1);
 }
+
 .decor-wrapper:hover .resize-handle,
 .decor-wrapper.is-interacting .resize-handle {
   display: block;
 }
+
 .decor-wrapper:hover .close-btn,
 .decor-wrapper.is-interacting .close-btn {
   display: block;
 }
+
 .top-left {
   top: 40px;
   left: 40px;
@@ -1434,7 +1421,8 @@ html {
   gap: 25px;
   pointer-events: none;
 }
-.top-right-zone > .hud-item {
+
+.top-right-zone>.hud-item {
   pointer-events: auto;
   position: relative;
   top: auto;
@@ -1448,6 +1436,7 @@ html {
   gap: 10px;
   align-items: center;
 }
+
 .tool-btn {
   width: 40px;
   height: 40px;
@@ -1464,28 +1453,33 @@ html {
   transition: all 0.2s;
   box-shadow: var(--ui-panel-box-shadow);
 }
+
 .tool-btn:hover {
   background: var(--text-color);
   color: #000;
   transform: scale(1.1);
 }
+
 .tool-btn.is-active {
   background: var(--accent-color);
   color: var(--panel-bg);
   border-color: var(--accent-color);
   box-shadow: 0 0 8px var(--accent-color);
 }
+
 .desk-clock-pos {
   bottom: 120px;
   left: 20%;
   transform: rotate(-2deg);
   transform-origin: bottom center;
 }
+
 .bottom-right {
   bottom: 20px;
   right: 40px;
   transform-origin: bottom right;
 }
+
 .bottom-dock {
   position: absolute;
   bottom: 0;
@@ -1500,6 +1494,7 @@ html {
   border-top: var(--ui-panel-border) !important;
   box-shadow: var(--ui-panel-box-shadow);
 }
+
 .bottom-dock:hover {
   opacity: 1 !important;
 }
@@ -1508,8 +1503,10 @@ html {
 <style>
 /* 🔥🔥🔥 新增：覆盖 ElMessageBox 样式，让确认弹窗也跟随主题 🔥🔥🔥 */
 .el-message-box {
-  background: var(--ui-panel-bg) !important; /* 跟随面板背景 */
-  border: var(--ui-panel-border) !important; /* 跟随面板边框 */
+  background: var(--ui-panel-bg) !important;
+  /* 跟随面板背景 */
+  border: var(--ui-panel-border) !important;
+  /* 跟随面板边框 */
   border-radius: var(--border-radius) !important;
   backdrop-filter: blur(10px);
   box-shadow: var(--ui-panel-box-shadow) !important;
@@ -1535,6 +1532,7 @@ html {
 .el-message-box__headerbtn .el-message-box__close {
   color: var(--text-color) !important;
 }
+
 .el-message-box__headerbtn .el-message-box__close:hover {
   color: var(--accent-color) !important;
 }
@@ -1550,6 +1548,7 @@ html {
   border: 1px solid var(--text-color) !important;
   color: var(--text-color) !important;
 }
+
 .el-message-box__btns .el-button:not(.el-button--primary):hover {
   opacity: 0.8;
 }
@@ -1558,9 +1557,11 @@ html {
 .el-message-box__btns .el-button--primary {
   background: var(--accent-color) !important;
   border-color: var(--accent-color) !important;
-  color: #000 !important; /* 确认按钮文字黑色 */
+  color: #000 !important;
+  /* 确认按钮文字黑色 */
   font-weight: bold;
 }
+
 .el-message-box__btns .el-button--primary:hover {
   opacity: 0.9;
   transform: scale(1.05);

@@ -1,30 +1,20 @@
 <template>
-  <div
-    class="pet-wrapper"
-    :style="{
-      left: x + 'px',
-      top: y + 'px',
-      width: size + 'px',
-      height: size + 'px',
-      transform: `scaleX(${direction})`,
-      opacity: opacity,
-      transition: isDragging ? 'none' : 'top 0.1s, left 0.1s',
-    }"
-    @mousedown.prevent="startDrag"
-    @mouseenter="handleMouseEnter"
-    @click="handleClick"
-  >
+  <div class="pet-wrapper" :style="{
+    left: x + 'px',
+    top: y + 'px',
+    width: size + 'px',
+    height: size + 'px',
+    transform: `scaleX(${direction})`,
+    opacity: opacity,
+    transition: isDragging ? 'none' : 'top 0.1s, left 0.1s',
+  }" @mousedown.prevent="startDrag" @mouseenter="handleMouseEnter" @click="handleClick">
     <img :src="currentGifSrc" class="pet-gif" draggable="false" />
 
     <!-- 
        🔥 修复 1：调整气泡样式，确保可见 
        增加 z-index，并确保它不会被 scaleX 翻转文字方向
     -->
-    <div
-      v-if="bubbleText"
-      class="bubble"
-      :style="{ transform: `scaleX(${direction})` }"
-    >
+    <div v-if="bubbleText" class="bubble" :style="{ transform: `scaleX(${direction})` }">
       {{ bubbleText }}
     </div>
 
@@ -64,9 +54,8 @@ const mode = ref<PetMode>('gentle')
 const bubbleText = ref('')
 const isDragging = ref(false)
 
-const currentGifSrc = computed(
-  () => `/pet/${props.petId}_${currentState.value}.gif`
-)
+// 🔥🔥🔥 去掉开头的 / 🔥🔥🔥
+const currentGifSrc = computed(() => `pet/${props.petId}_${currentState.value}.gif`);
 
 let aiTimer: any = null
 let angerTimer: any = null
@@ -302,9 +291,11 @@ onUnmounted(() => {
   user-select: none;
   image-rendering: pixelated;
 }
+
 .pet-wrapper:active {
   cursor: grabbing;
 }
+
 .pet-gif {
   width: 100%;
   height: 100%;
@@ -317,9 +308,8 @@ onUnmounted(() => {
   /* 往上提一点，防止遮挡宠物 */
   top: 0px;
   left: 30%;
-  transform: translateX(
-    -50%
-  ); /* 注意：这个 transform 会被行内样式覆盖，所以我们在 template 里处理了 */
+  transform: translateX(-50%);
+  /* 注意：这个 transform 会被行内样式覆盖，所以我们在 template 里处理了 */
 
   background: white;
   border: 2px solid #000;
@@ -328,13 +318,15 @@ onUnmounted(() => {
 
   /* 字体大小：因为父容器可能被 scale 放大了，所以这里字号要小一点，或者设为固定像素 */
   font-size: 12px;
-  font-family: 'Microsoft YaHei', sans-serif; /* 用通用字体确保显示中文 */
+  font-family: 'Microsoft YaHei', sans-serif;
+  /* 用通用字体确保显示中文 */
   font-weight: bold;
   color: #000;
 
   white-space: nowrap;
   pointer-events: none;
-  z-index: 10000; /* 确保在最上层 */
+  z-index: 10000;
+  /* 确保在最上层 */
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 

@@ -1,85 +1,43 @@
 <template>
-  <el-dialog
-    :model-value="visible"
-    title="心流百货商店"
-    width="750px"
-    center
-    :before-close="handleClose"
-    class="shop-dialog"
-  >
+  <el-dialog :model-value="visible" title="心流百货商店" width="750px" center :before-close="handleClose" class="shop-dialog">
     <div class="shop-header">
       <div class="tabs">
-        <span
-          v-for="tab in tabs"
-          :key="tab.key"
-          class="tab-item"
-          :class="{ active: currentTab === tab.key }"
-          @click="currentTab = tab.key"
-        >
+        <span v-for="tab in tabs" :key="tab.key" class="tab-item" :class="{ active: currentTab === tab.key }"
+          @click="currentTab = tab.key">
           {{ tab.label }}
         </span>
       </div>
 
       <!-- 🔥🔥🔥 新增：上传按钮 (仅在 场景/磁带 Tab 显示) 🔥🔥🔥 -->
-      <div
-        v-if="['background', 'music', 'font', 'decor'].includes(currentTab)"
-        class="upload-zone"
-      >
+      <div v-if="['background', 'music', 'font', 'decor'].includes(currentTab)" class="upload-zone">
         <button class="upload-btn" @click="triggerUpload">
           ➕ 上传{{ getUploadLabel(currentTab) }}
         </button>
-        <input
-          type="file"
-          ref="fileInput"
-          style="display: none"
-          :accept="getAcceptType(currentTab)"
-          @change="handleFileChange"
-        />
+        <input type="file" ref="fileInput" style="display: none" :accept="getAcceptType(currentTab)"
+          @change="handleFileChange" />
       </div>
 
       <span class="my-coins">余额: 💰 {{ userCoins }}</span>
     </div>
 
     <div class="items-grid">
-      <div
-        v-for="item in filteredItems"
-        :key="item.id"
-        class="shop-item"
-        :class="{
-          'is-active': isEquipped(item),
-          'is-locked': !item.unlocked && item.id !== 'mystery_box',
-          'is-box': item.id === 'mystery_box',
-        }"
-        @click="handleItemClick(item)"
-      >
+      <div v-for="item in filteredItems" :key="item.id" class="shop-item" :class="{
+        'is-active': isEquipped(item),
+        'is-locked': !item.unlocked && item.id !== 'mystery_box',
+        'is-box': item.id === 'mystery_box',
+      }" @click="handleItemClick(item)">
         <div class="item-preview" :style="getItemStyle(item)">
-          <div
-            v-if="item.id === 'mystery_box'"
-            class="box-icon"
-            :class="{ 'shake-anim': isOpening }"
-          >
+          <div v-if="item.id === 'mystery_box'" class="box-icon" :class="{ 'shake-anim': isOpening }">
             🎁
           </div>
-          <img
-            v-else-if="
-              ['background', 'decor', 'pet', 'set'].includes(item.type)
-            "
-            :src="getPreviewSrc(item)"
-            class="item-img"
-          />
+          <img v-else-if="
+            ['background', 'decor', 'pet', 'set'].includes(item.type)
+          " :src="getPreviewSrc(item)" class="item-img" />
           <div v-else-if="item.type === 'music'" class="music-icon">🎵</div>
-          <div
-            v-else-if="item.type === 'theme'"
-            class="theme-block"
-            :style="{ background: item.src }"
-          >
+          <div v-else-if="item.type === 'theme'" class="theme-block" :style="{ background: item.src }">
             Aa
           </div>
-          <div
-            v-else-if="item.type === 'font'"
-            class="font-block"
-            :style="{ fontFamily: item.src }"
-          >
+          <div v-else-if="item.type === 'font'" class="font-block" :style="{ fontFamily: item.src }">
             Aa
           </div>
         </div>
@@ -149,7 +107,7 @@ const getPreviewSrc = (item: GameItem) => {
   if (item.cover) return item.cover
 
   // 2. 如果是桌宠，用 idle 动图
-  if (item.type === 'pet') return `/pet/${item.src}_idle.gif`
+  if (item.type === 'pet') return `pet/${item.src}_idle.gif`
 
   // 3. 默认情况
   return item.src
@@ -214,7 +172,7 @@ const handleItemClick = async (item: GameItem) => {
       type: 'warning',
     })
       .then(() => emit('buy', item))
-      .catch(() => {})
+      .catch(() => { })
   } else {
     ElMessage.error('金币不足')
   }
@@ -232,7 +190,7 @@ const handleMysteryBox = (boxItem: GameItem) => {
     type: 'info',
   })
     .then(() => startGacha(boxItem))
-    .catch(() => {})
+    .catch(() => { })
 }
 
 const startGacha = (boxItem: GameItem) => {
@@ -336,11 +294,13 @@ const handleFileChange = async (e: Event) => {
   border-bottom: 1px solid var(--text-color);
   padding-bottom: 10px;
 }
+
 .tabs {
   display: flex;
   gap: 10px;
   overflow-x: auto;
 }
+
 .tab-item {
   cursor: pointer;
   color: var(--text-color);
@@ -351,21 +311,25 @@ const handleFileChange = async (e: Event) => {
   opacity: 0.7;
   white-space: nowrap;
 }
+
 .tab-item:hover {
   opacity: 1;
   background: rgba(255, 255, 255, 0.1);
 }
+
 .tab-item.active {
   color: #000;
   background: var(--accent-color);
   opacity: 1;
 }
+
 .my-coins {
   font-size: 18px;
   font-weight: bold;
   color: var(--accent-color);
   white-space: nowrap;
 }
+
 .items-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -373,6 +337,7 @@ const handleFileChange = async (e: Event) => {
   max-height: 400px;
   overflow-y: auto;
 }
+
 .shop-item {
   position: relative;
   background: #2b2b2b;
@@ -382,20 +347,25 @@ const handleFileChange = async (e: Event) => {
   border: 2px solid transparent;
   transition: transform 0.2s;
 }
+
 .shop-item:hover {
   transform: translateY(-3px);
   border-color: #666;
 }
+
 .shop-item.is-active {
   border-color: var(--accent-color);
 }
+
 .shop-item.is-box {
   border-color: #f56c6c;
   background: #4a2b2b;
 }
+
 .shop-item.is-box:hover {
   border-color: #ff4444;
 }
+
 .box-icon {
   font-size: 50px;
   display: flex;
@@ -403,32 +373,40 @@ const handleFileChange = async (e: Event) => {
   justify-content: center;
   height: 100%;
 }
+
 .box-btn {
   background: #f56c6c !important;
   color: #fff !important;
 }
+
 .shake-anim {
   animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both infinite;
 }
+
 @keyframes shake {
+
   10%,
   90% {
     transform: translate3d(-1px, 0, 0);
   }
+
   20%,
   80% {
     transform: translate3d(2px, 0, 0);
   }
+
   30%,
   50%,
   70% {
     transform: translate3d(-4px, 0, 0);
   }
+
   40%,
   60% {
     transform: translate3d(4px, 0, 0);
   }
 }
+
 .item-preview {
   height: 100px;
   display: flex;
@@ -437,15 +415,18 @@ const handleFileChange = async (e: Event) => {
   background: #1a1a1a;
   overflow: hidden;
 }
+
 .item-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
+
 .music-icon {
   font-size: 40px;
   color: var(--accent-color);
 }
+
 .theme-block {
   width: 50px;
   height: 50px;
@@ -457,12 +438,14 @@ const handleFileChange = async (e: Event) => {
   color: #000;
   border: 2px solid #fff;
 }
+
 .font-block {
   font-size: 24px;
   color: #fff;
   text-align: center;
   line-height: 1.2;
 }
+
 .item-overlay {
   position: absolute;
   top: 0;
@@ -476,14 +459,17 @@ const handleFileChange = async (e: Event) => {
   opacity: 0;
   transition: opacity 0.2s;
 }
+
 .shop-item.is-locked .item-overlay,
 .shop-item.is-box .item-overlay {
   opacity: 1;
   background: rgba(0, 0, 0, 0.7);
 }
+
 .shop-item:hover .item-overlay {
   opacity: 1;
 }
+
 .price-tag {
   background: var(--accent-color);
   color: #000;
@@ -491,6 +477,7 @@ const handleFileChange = async (e: Event) => {
   border-radius: 12px;
   font-weight: bold;
 }
+
 .limit-tag {
   background: #f56c6c;
   color: white;
@@ -498,6 +485,7 @@ const handleFileChange = async (e: Event) => {
   border-radius: 4px;
   font-size: 12px;
 }
+
 .status-badge {
   background: #67c23a;
   color: #fff;
@@ -505,6 +493,7 @@ const handleFileChange = async (e: Event) => {
   border-radius: 4px;
   font-size: 12px;
 }
+
 .item-name {
   padding: 8px;
   text-align: center;
@@ -518,6 +507,7 @@ const handleFileChange = async (e: Event) => {
   margin-right: auto;
   margin-left: 20px;
 }
+
 .upload-btn {
   background: rgba(255, 255, 255, 0.1);
   border: 1px dashed var(--text-color);
@@ -528,6 +518,7 @@ const handleFileChange = async (e: Event) => {
   font-family: inherit;
   transition: 0.2s;
 }
+
 .upload-btn:hover {
   background: rgba(255, 255, 255, 0.2);
   border-color: var(--accent-color);

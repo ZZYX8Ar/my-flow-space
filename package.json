@@ -9,7 +9,8 @@
     "build": "vue-tsc && vite build",
     "preview": "vite preview",
     "electron:dev": "cross-env NODE_ENV=development electron .",
-    "electron:build": "vite build && electron-builder"
+    "electron:build": "vite build && electron-builder",
+    "build:dir": "vite build && electron-builder --dir"
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.2",
@@ -43,7 +44,16 @@
     },
     "nsis": {
       "oneClick": false,
-      "allowToChangeInstallationDirectory": true
-    }
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    },
+    "asar": true,
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "package.json"
+    ],
+    "extends": null
   }
 }

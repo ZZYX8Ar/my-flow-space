@@ -216,7 +216,7 @@ const calendarVisible = ref(false)
 const savedBg = localStorage.getItem('flow-current-bg')
 const savedTheme = localStorage.getItem('flow-current-theme-id')
 const savedFont = localStorage.getItem('flow-current-font-id')
-const defaultBgImg = defaultItems.find((i) => i.id === 'bg1')?.src || '/bg.gif'
+const defaultBgImg = defaultItems.find((i) => i.id === 'bg1')?.src || 'bg.gif'
 const currentBg = ref(savedBg || defaultBgImg)
 const currentThemeId = ref(savedTheme || 't1')
 const currentFontId = ref(savedFont || 'f1')

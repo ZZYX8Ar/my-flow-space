@@ -1460,11 +1460,19 @@ html {
   transform: scale(1.1);
 }
 
+/* 🔥🔥🔥 修复：激活状态样式 (不再变实心块，改为发光风格) 🔥🔥🔥 */
 .tool-btn.is-active {
-  background: var(--accent-color);
-  color: var(--panel-bg);
-  border-color: var(--accent-color);
-  box-shadow: 0 0 8px var(--accent-color);
+  /* 背景保持面板的半透明色，不变成实心 */
+  background: var(--ui-panel-bg);
+
+  /* 图标颜色变成主题强调色 */
+  color: var(--accent-color);
+
+  /* 边框变成强调色 */
+  border: 1px solid var(--accent-color) !important;
+
+  /* 添加外发光 + 内发光，营造“点亮”的效果 */
+  box-shadow: 0 0 8px var(--accent-color), inset 0 0 5px var(--accent-color);
 }
 
 .desk-clock-pos {

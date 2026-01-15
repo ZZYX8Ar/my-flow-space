@@ -8,12 +8,13 @@
         </span>
       </div>
 
-      <!-- 🔥🔥🔥 新增：上传按钮 (仅在 场景/磁带 Tab 显示) 🔥🔥🔥 -->
+      <!-- 🔥🔥🔥 核心修改 1：上传区域 🔥🔥🔥 -->
       <div v-if="['background', 'music', 'font', 'decor'].includes(currentTab)" class="upload-zone">
         <button class="upload-btn" @click="triggerUpload">
-          ➕ 上传{{ getUploadLabel(currentTab) }}
+          ➕ 批量上传{{ getUploadLabel(currentTab) }}
         </button>
-        <input type="file" ref="fileInput" style="display: none" :accept="getAcceptType(currentTab)"
+        <!-- 🔥 注意这里加了 multiple 属性 -->
+        <input type="file" ref="fileInput" multiple style="display: none" :accept="getAcceptType(currentTab)"
           @change="handleFileChange" />
       </div>
 
@@ -253,35 +254,58 @@ const getAcceptType = (tab: string) => {
   return 'image/*,video/mp4' // 背景和摆件都是图片(摆件一般是gif/png)
 }
 
+// 🔥🔥🔥 核心修复 2：批量处理文件 🔥🔥🔥
+
 const handleFileChange = async (e: Event) => {
-  const file = (e.target as HTMLInputElement).files?.[0]
-  if (!file) return
+  const input = e.target as HTMLInputElement;
+  const files = input.files;
+  if (!files || files.length === 0) return;
 
-  if (file.size > 50 * 1024 * 1024) {
-    ElMessage.error('文件太大啦！请上传 50MB 以内的文件')
-    return
+  const type = currentTab.value as 'background' | 'music' | 'font' | 'decor';
+  let successCount = 0;
+  const errors: string[] = [];
+
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+
+    // 🔥🔥🔥 核心修复：添加非空检查 🔥🔥🔥
+    // 加上这一行，TypeScript 就知道 file 一定存在，下面的报错全都会消失
+    if (!file) continue;
+
+    // 简单限制大小 (50MB)
+    if (file.size > 50 * 1024 * 1024) {
+      errors.push(`${file.name} 太大(>50MB)`);
+      continue;
+    }
+
+    const id = `custom_${Date.now()}_${i}`;
+
+    try {
+      await saveAsset({
+        id,
+        type,
+        name: file.name,
+        blob: file, // 这里 file 已经被确认为 File 类型（它是 Blob 的子类），所以不会报错了
+        mimeType: file.type
+      });
+      successCount++;
+    } catch (err) {
+      console.error(err);
+      errors.push(`${file.name} 保存失败`);
+    }
   }
 
-  // 🔥 类型断言更新
-  const type = currentTab.value as 'background' | 'music' | 'font' | 'decor'
-  const id = `custom_${Date.now()}`
-
-  try {
-    await saveAsset({
-      id,
-      type,
-      name: file.name,
-      blob: file,
-      mimeType: file.type,
-    })
-
-    ElMessage.success('上传成功！正在刷新应用...')
-    setTimeout(() => location.reload(), 1000)
-  } catch (err) {
-    console.error(err)
-    ElMessage.error('上传失败，请重试')
+  if (successCount > 0) {
+    ElMessage.success(`成功上传 ${successCount} 个文件！正在刷新...`);
+    setTimeout(() => location.reload(), 1000);
   }
-}
+
+  if (errors.length > 0) {
+    ElMessage.warning(`部分失败: ${errors.join(', ')}`);
+  }
+
+  input.value = '';
+};
 </script>
 
 <style scoped>

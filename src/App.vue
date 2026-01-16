@@ -248,42 +248,38 @@ const currentStats = computed(() => {
 })
 
 // 🔥🔥🔥 新增：加载自定义资源 (包含字体注册逻辑) 🔥🔥🔥
+
 const loadCustomAssets = async () => {
   try {
-    const assets = await getAllAssets()
+    const assets = await getAllAssets();
 
-    // 使用 Promise.all 等待所有字体加载完成
     const newItems = await Promise.all(
       assets.map(async (asset) => {
-        const url = URL.createObjectURL(asset.blob)
+        let url = URL.createObjectURL(asset.blob);
 
-        // A. 处理字体：动态注册到浏览器
+        // A. 处理字体
         if (asset.type === 'font') {
-          // 提取文件名作为字体名称 (去掉后缀)
-          const fontName = asset.name.replace(/\.[^/.]+$/, '')
+          const fontName = asset.name.replace(/\.[^/.]+$/, '');
           try {
-            // 创建字体对象
-            const fontFace = new FontFace(fontName, `url(${url})`)
-            // 加载并添加到 document
-            await fontFace.load()
-            document.fonts.add(fontFace)
-            console.log(`字体 ${fontName} 加载成功`)
-
+            const fontFace = new FontFace(fontName, `url(${url})`);
+            await fontFace.load();
+            document.fonts.add(fontFace);
+            console.log(`字体 ${fontName} 加载成功`);
             return {
               id: asset.id,
               type: 'font',
               name: fontName,
-              src: `'${fontName}', sans-serif`, // CSS font-family 值
+              src: `'${fontName}', sans-serif`,
               price: 0,
               unlocked: true,
-            } as GameItem
+            } as GameItem;
           } catch (err) {
-            console.error(`字体 ${asset.name} 加载失败`, err)
-            return null
+            console.error(`字体 ${asset.name} 加载失败`, err);
+            return null;
           }
         }
 
-        // B. 处理摆件：设置默认属性
+        // B. 处理摆件
         if (asset.type === 'decor') {
           return {
             id: asset.id,
@@ -292,14 +288,23 @@ const loadCustomAssets = async () => {
             src: url,
             price: 0,
             unlocked: true,
-            isActive: false, // 默认不显示
-            x: '50%', // 默认位置
+            isActive: false,
+            x: '50%',
             y: '50%',
-            width: '100px', // 默认大小
-          } as GameItem
+            width: '100px',
+          } as GameItem;
         }
 
-        // C. 处理背景和音乐 (原有逻辑)
+        // C. 处理背景 (🔥 核心修复点 🔥)
+        if (asset.type === 'background') {
+          // 如果是视频文件 (MIME类型以 video/ 开头)
+          // 强行在 URL 后面拼一个 '#.mp4'，骗过 isVideo 函数
+          if (asset.mimeType && asset.mimeType.startsWith('video/')) {
+            url = url + '#.mp4';
+          }
+        }
+
+        // D. 其他 (音乐/普通图片背景)
         return {
           id: asset.id,
           type: asset.type,
@@ -307,20 +312,20 @@ const loadCustomAssets = async () => {
           src: url,
           price: 0,
           unlocked: true,
-        } as GameItem
+        } as GameItem;
       })
-    )
+    );
 
-    // 过滤掉加载失败的 null，合并到 allItems
+    // 合并到 allItems
     newItems.forEach((newItem) => {
       if (newItem && !allItems.value.find((i) => i.id === newItem.id)) {
-        allItems.value.push(newItem)
+        allItems.value.push(newItem);
       }
-    })
+    });
   } catch (e) {
-    console.error('加载自定义资源失败', e)
+    console.error('加载自定义资源失败', e);
   }
-}
+};
 
 const uiSettings = reactive<UISettings>({
   scale: 0.85,

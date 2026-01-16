@@ -1,21 +1,16 @@
 <template>
   <div class="music-bar-container">
-    <audio
-      ref="audioRef"
-      :src="currentSong?.src || ''"
-      preload="auto"
-      @timeupdate="onTimeUpdate"
-      @loadedmetadata="onLoadedMetadata"
-      @durationchange="onDurationChange"
-      @ended="nextSong"
-      @error="onAudioError"
-    ></audio>
+    <audio ref="audioRef" :src="currentSong?.src || ''" preload="auto" @timeupdate="onTimeUpdate"
+      @loadedmetadata="onLoadedMetadata" @durationchange="onDurationChange" @ended="nextSong"
+      @error="onAudioError"></audio>
 
     <div class="bar-content">
       <!-- 左侧 -->
       <div class="section-left">
         <div class="cover-block">
-          <el-icon class="cover-icon"><Headset /></el-icon>
+          <el-icon class="cover-icon">
+            <Headset />
+          </el-icon>
         </div>
         <div class="song-text">
           <div class="title">{{ currentSong?.name || 'No Song' }}</div>
@@ -26,30 +21,28 @@
       <!-- 中间 -->
       <div class="section-center">
         <div class="controls">
-          <el-icon class="ctrl-btn" @click="prevSong"
-            ><ArrowLeftBold
-          /></el-icon>
+          <el-icon class="ctrl-btn" @click="prevSong">
+            <ArrowLeftBold />
+          </el-icon>
           <div class="play-btn-circle" @click="togglePlay">
             <!-- 显式设置图标颜色，防止继承透明度 -->
-            <el-icon class="play-icon" v-if="isPlaying"><VideoPause /></el-icon>
-            <el-icon class="play-icon" v-else><CaretRight /></el-icon>
+            <el-icon class="play-icon" v-if="isPlaying">
+              <VideoPause />
+            </el-icon>
+            <el-icon class="play-icon" v-else>
+              <CaretRight />
+            </el-icon>
           </div>
-          <el-icon class="ctrl-btn" @click="nextSong"
-            ><ArrowRightBold
-          /></el-icon>
+          <el-icon class="ctrl-btn" @click="nextSong">
+            <ArrowRightBold />
+          </el-icon>
         </div>
 
         <div class="progress-wrapper">
           <span class="time-text">{{ formatTime(sliderValue) }}</span>
           <div class="slider-box">
-            <el-slider
-              v-model="sliderValue"
-              :max="safeDuration"
-              :show-tooltip="false"
-              @input="handleSliderInput"
-              @change="handleSliderChange"
-              size="small"
-            />
+            <el-slider v-model="sliderValue" :max="safeDuration" :show-tooltip="false" @input="handleSliderInput"
+              @change="handleSliderChange" size="small" />
           </div>
           <span class="time-text">{{ formatTime(safeDuration) }}</span>
         </div>
@@ -67,40 +60,32 @@
           </div>
         </div>
 
-        <el-popover
-          placement="top-end"
-          title="音乐磁带"
-          :width="280"
-          trigger="click"
-          popper-class="playlist-popover"
-        >
+        <el-popover placement="top-end" title="音乐磁带" :width="280" trigger="click" popper-class="playlist-popover">
           <template #reference>
             <div class="icon-btn list-btn">
-              <el-icon><Tickets /></el-icon>
+              <el-icon>
+                <Tickets />
+              </el-icon>
             </div>
           </template>
           <ul class="playlist-ul">
-            <li
-              v-for="(song, index) in playlist"
-              :key="song.id"
-              class="playlist-item"
-              :class="{
-                active: index === currentIndex,
-                locked: !song.unlocked,
-              }"
-              @click="playIndex(index)"
-            >
+            <li v-for="(song, index) in playlist" :key="song.id" class="playlist-item" :class="{
+              active: index === currentIndex,
+              locked: !song.unlocked,
+            }" @click="playIndex(index)">
               <span class="song-index">
-                <el-icon v-if="!song.unlocked"><Lock /></el-icon>
+                <el-icon v-if="!song.unlocked">
+                  <Lock />
+                </el-icon>
                 <span v-else>{{ index + 1 }}</span>
               </span>
               <div class="song-info-mini">
                 <div class="name">{{ song.name }}</div>
                 <div class="author">{{ song.artist }}</div>
               </div>
-              <el-icon v-if="index === currentIndex" class="playing-icon"
-                ><VideoPlay
-              /></el-icon>
+              <el-icon v-if="index === currentIndex" class="playing-icon">
+                <VideoPlay />
+              </el-icon>
             </li>
           </ul>
         </el-popover>
@@ -110,157 +95,155 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
-import {
-  Headset,
-  ArrowLeftBold,
-  ArrowRightBold,
-  VideoPause,
-  CaretRight,
-  Microphone,
-  Tickets,
-  VideoPlay,
-  Mute,
-  Lock,
-} from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
-import type { GameItem } from '../types'
+import { ref, computed, watch, onMounted } from 'vue';
+import { Headset, ArrowLeftBold, ArrowRightBold, VideoPause, CaretRight, Microphone, Tickets, VideoPlay, Mute, Lock } from '@element-plus/icons-vue';
+import { ElMessage } from 'element-plus';
+import type { GameItem } from '../types';
 
-const props = defineProps<{ playlist: GameItem[] }>()
-const audioRef = ref<HTMLAudioElement | null>(null)
-const isPlaying = ref(false)
-const duration = ref(0)
-const volume = ref(50)
-const lastVolume = ref(50)
-const sliderValue = ref(0)
-const isDragging = ref(false)
-const currentIndex = ref(0)
+const props = defineProps<{
+  playlist: GameItem[];
+}>();
 
-const currentSong = computed(() => props.playlist[currentIndex.value])
-const safeDuration = computed(() =>
-  duration.value && !isNaN(duration.value) && duration.value !== Infinity
-    ? duration.value
-    : 0
-)
+const audioRef = ref<HTMLAudioElement | null>(null);
+const isPlaying = ref(false);
+const duration = ref(0);
+const volume = ref(50);
+const lastVolume = ref(50);
+const sliderValue = ref(0);
+const isDragging = ref(false);
+const currentIndex = ref(0);
+
+const currentSong = computed(() => props.playlist[currentIndex.value]);
+const safeDuration = computed(() => (duration.value && !isNaN(duration.value) && duration.value !== Infinity) ? duration.value : 0);
 
 onMounted(() => {
-  const saved = localStorage.getItem('flow-music-settings')
+  const saved = localStorage.getItem('flow-music-settings');
   if (saved) {
     try {
-      const { index, vol } = JSON.parse(saved)
-      if (
-        typeof index === 'number' &&
-        index >= 0 &&
-        index < props.playlist.length
-      )
-        currentIndex.value = index
-      if (typeof vol === 'number') volume.value = vol
-    } catch (e) {}
+      const { index, vol } = JSON.parse(saved);
+      if (typeof index === 'number' && index >= 0 && index < props.playlist.length) currentIndex.value = index;
+      if (typeof vol === 'number') volume.value = vol;
+    } catch (e) { }
   }
-})
+});
+
 watch([currentIndex, volume], ([newIndex, newVol]) => {
-  localStorage.setItem(
-    'flow-music-settings',
-    JSON.stringify({ index: newIndex, vol: newVol })
-  )
-})
+  localStorage.setItem('flow-music-settings', JSON.stringify({ index: newIndex, vol: newVol }));
+});
 
 const togglePlay = () => {
-  if (!currentSong.value) return
-  if (!currentSong.value.unlocked) {
-    ElMessage.warning('未解锁')
-    return
-  }
-  if (!audioRef.value) return
-  if (isPlaying.value) audioRef.value.pause()
-  else audioRef.value.play().catch(() => {})
-  isPlaying.value = !isPlaying.value
-}
-const playIndex = (index: number) => {
-  const targetSong = props.playlist[index]
-  if (!targetSong || !targetSong.unlocked) return
-  if (index === currentIndex.value) {
-    togglePlay()
-    return
-  }
-  currentIndex.value = index
-  isPlaying.value = true
-  sliderValue.value = 0
-  setTimeout(() => {
-    audioRef.value?.play()
-  }, 100)
-}
-const findNextUnlockedIndex = (direction: 1 | -1) => {
-  let tempIndex = currentIndex.value
-  let loopCount = 0
-  if (props.playlist.length === 0) return 0
-  do {
-    tempIndex += direction
-    if (tempIndex >= props.playlist.length) tempIndex = 0
-    if (tempIndex < 0) tempIndex = props.playlist.length - 1
-    loopCount++
-    const song = props.playlist[tempIndex]
-    if (song && !song.unlocked && loopCount < props.playlist.length) {
-      /* continue */
-    } else {
-      break
+  if (!currentSong.value) { ElMessage.error('没有可播放的歌曲！'); return; }
+  if (!currentSong.value.unlocked) { ElMessage.warning('这盘磁带还未解锁，请前往商店购买 🛒'); return; }
+  if (!audioRef.value) return;
+
+  if (isPlaying.value) {
+    audioRef.value.pause();
+  } else {
+    const playPromise = audioRef.value.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(e => {
+        console.error("播放出错:", e);
+        // 如果是网络错误导致无法播放，提示用户
+        if (currentSong.value!.src.startsWith('http')) {
+          ElMessage.error('网络音频加载失败，请检查网络或更换资源');
+        }
+      });
     }
-  } while (true)
-  return tempIndex
-}
-const nextSong = () => playIndex(findNextUnlockedIndex(1))
-const prevSong = () => playIndex(findNextUnlockedIndex(-1))
+  }
+  isPlaying.value = !isPlaying.value;
+};
+
+const playIndex = (index: number) => {
+  const targetSong = props.playlist[index];
+  if (!targetSong) return;
+  if (!targetSong.unlocked) { ElMessage.warning(`"${targetSong.name}" 未解锁，请去商店购买`); return; }
+  if (index === currentIndex.value) { togglePlay(); return; }
+  currentIndex.value = index;
+  isPlaying.value = true;
+  sliderValue.value = 0;
+  setTimeout(() => { audioRef.value?.play(); }, 100);
+};
+
+const findNextUnlockedIndex = (direction: 1 | -1) => {
+  let tempIndex = currentIndex.value;
+  let loopCount = 0;
+  if (props.playlist.length === 0) return 0;
+  do {
+    tempIndex += direction;
+    if (tempIndex >= props.playlist.length) tempIndex = 0;
+    if (tempIndex < 0) tempIndex = props.playlist.length - 1;
+    loopCount++;
+    const song = props.playlist[tempIndex];
+    if (song && !song.unlocked && loopCount < props.playlist.length) { /* continue */ }
+    else { break; }
+  } while (true);
+  return tempIndex;
+};
+
+const nextSong = () => { const nextIdx = findNextUnlockedIndex(1); playIndex(nextIdx); };
+const prevSong = () => { const prevIdx = findNextUnlockedIndex(-1); playIndex(prevIdx); };
+
+// --- 🔥🔥🔥 核心修复：拖拽逻辑 🔥🔥🔥 ---
+
+// 1. 拖拽中：只更新 UI，不碰音频
 const handleSliderInput = (val: number) => {
-  isDragging.value = true
-  sliderValue.value = val
-}
+  isDragging.value = true;
+  sliderValue.value = val;
+};
+
+// 2. 拖拽结束：稳健跳转
 const handleSliderChange = (val: number) => {
   if (audioRef.value) {
-    audioRef.value.currentTime = val
-    if (!isPlaying.value) togglePlay()
+    // A. 先暂停，防止缓冲冲突
+    audioRef.value.pause();
+
+    // B. 设置时间
+    audioRef.value.currentTime = val;
+
+    // C. 恢复播放 (如果之前是播放状态，或者为了预览)
+    // 这里强制播放，体验更好
+    const playPromise = audioRef.value.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(() => { }); // 忽略中断错误
+    }
+    isPlaying.value = true;
   }
+
+  // D. 🔥 延长锁定期到 1秒 🔥
+  // 因为网络音频跳转需要缓冲，如果立刻释放锁，timeupdate 会把进度条拉回 0
   setTimeout(() => {
-    isDragging.value = false
-  }, 200)
-}
+    isDragging.value = false;
+  }, 1000);
+};
+
 const onTimeUpdate = () => {
-  if (!audioRef.value) return
-  if (!isDragging.value) sliderValue.value = audioRef.value.currentTime
-}
-const updateDuration = () => {
-  if (audioRef.value && !isNaN(audioRef.value.duration))
-    duration.value = audioRef.value.duration
-}
-const onLoadedMetadata = () => {
-  updateDuration()
-  if (audioRef.value) audioRef.value.volume = volume.value / 100
-}
-const onDurationChange = updateDuration
-const onAudioError = () => {
-  if (currentSong.value?.unlocked && isPlaying.value)
-    ElMessage.error('无法播放')
-}
-const toggleMute = () => {
-  if (volume.value > 0) {
-    lastVolume.value = volume.value
-    volume.value = 0
-  } else {
-    volume.value = lastVolume.value || 50
+  if (!audioRef.value) return;
+  // 只有不在拖拽且不在缓冲锁定期时，才更新进度条
+  if (!isDragging.value) {
+    sliderValue.value = audioRef.value.currentTime;
   }
-}
-const setVolume = () => {
-  if (audioRef.value) audioRef.value.volume = volume.value / 100
-}
-const formatTime = (s: number) => {
-  if (!s || isNaN(s)) return '0:00'
-  const m = Math.floor(s / 60)
-  const sec = Math.floor(s % 60)
-  return `${m}:${sec.toString().padStart(2, '0')}`
-}
-watch(currentSong, () => {
-  duration.value = 0
-})
-defineExpose({ togglePlay, nextSong, prevSong, toggleMute })
+};
+
+const updateDuration = () => { if (audioRef.value && !isNaN(audioRef.value.duration) && audioRef.value.duration !== Infinity) duration.value = audioRef.value.duration; };
+const onLoadedMetadata = () => { updateDuration(); if (audioRef.value) audioRef.value.volume = volume.value / 100; };
+const onDurationChange = updateDuration;
+const onAudioError = () => {
+  if (!currentSong.value) return;
+  // 只有在尝试播放时才报错，避免初始化报错
+  if (isPlaying.value) console.warn(`音频加载受阻: ${currentSong.value.src}`);
+};
+
+const toggleMute = () => {
+  if (volume.value > 0) { lastVolume.value = volume.value; volume.value = 0; }
+  else { volume.value = lastVolume.value || 50; }
+  if (audioRef.value) audioRef.value.volume = volume.value / 100;
+};
+const setVolume = () => { if (audioRef.value) audioRef.value.volume = volume.value / 100; };
+const formatTime = (s: number) => { if (!s || isNaN(s)) return '0:00'; const m = Math.floor(s / 60); const sec = Math.floor(s % 60); return `${m}:${sec.toString().padStart(2, '0')}`; };
+
+watch(currentSong, () => { duration.value = 0; });
+
+defineExpose({ togglePlay, nextSong, prevSong, toggleMute });
 </script>
 
 <style scoped>
@@ -275,6 +258,7 @@ defineExpose({ togglePlay, nextSong, prevSong, toggleMute })
   user-select: none;
   font-family: inherit;
 }
+
 .bar-content {
   width: 98%;
   max-width: 1920px;
@@ -284,6 +268,7 @@ defineExpose({ togglePlay, nextSong, prevSong, toggleMute })
   align-items: center;
   justify-content: space-between;
 }
+
 .section-left {
   width: 25%;
   min-width: 200px;
@@ -291,6 +276,7 @@ defineExpose({ togglePlay, nextSong, prevSong, toggleMute })
   align-items: center;
   gap: 15px;
 }
+
 .cover-block {
   width: 48px;
   height: 48px;
@@ -302,11 +288,13 @@ defineExpose({ togglePlay, nextSong, prevSong, toggleMute })
   justify-content: center;
   font-size: 24px;
 }
+
 .song-text {
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
+
 .song-text .title {
   font-size: 15px;
   font-weight: bold;
@@ -315,11 +303,13 @@ defineExpose({ togglePlay, nextSong, prevSong, toggleMute })
   text-overflow: ellipsis;
   color: var(--text-color);
 }
+
 .song-text .artist {
   font-size: 12px;
   opacity: 0.7;
   color: var(--text-color);
 }
+
 .section-center {
   width: 50%;
   max-width: 600px;
@@ -329,6 +319,7 @@ defineExpose({ togglePlay, nextSong, prevSong, toggleMute })
   justify-content: center;
   gap: 4px;
 }
+
 .controls {
   display: flex;
   align-items: center;
@@ -344,6 +335,7 @@ defineExpose({ togglePlay, nextSong, prevSong, toggleMute })
   transition: 0.2s;
   color: var(--text-color);
 }
+
 .ctrl-btn:hover {
   opacity: 1;
   color: var(--accent-color);
@@ -355,7 +347,8 @@ defineExpose({ togglePlay, nextSong, prevSong, toggleMute })
   width: 36px;
   height: 36px;
   background: var(--text-color);
-  color: rgb(var(--panel-rgb)); /* 确保图标颜色是不透明的深色/浅色 */
+  color: rgb(var(--panel-rgb));
+  /* 确保图标颜色是不透明的深色/浅色 */
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -364,6 +357,7 @@ defineExpose({ togglePlay, nextSong, prevSong, toggleMute })
   font-size: 20px;
   transition: 0.2s;
 }
+
 .play-btn-circle:hover {
   transform: scale(1.1);
   box-shadow: 0 0 10px var(--accent-color);
@@ -375,11 +369,13 @@ defineExpose({ togglePlay, nextSong, prevSong, toggleMute })
   align-items: center;
   gap: 12px;
 }
+
 .slider-box {
   flex: 1;
   display: flex;
   align-items: center;
 }
+
 .time-text {
   font-size: 12px;
   min-width: 35px;
@@ -387,6 +383,7 @@ defineExpose({ togglePlay, nextSong, prevSong, toggleMute })
   font-variant-numeric: tabular-nums;
   opacity: 0.8;
 }
+
 .section-right {
   width: 25%;
   min-width: 150px;
@@ -395,28 +392,33 @@ defineExpose({ togglePlay, nextSong, prevSong, toggleMute })
   justify-content: flex-end;
   gap: 15px;
 }
+
 .volume-control {
   display: flex;
   align-items: center;
   gap: 8px;
   width: 100px;
 }
+
 .vol-slider-box {
   flex: 1;
   display: flex;
   align-items: center;
 }
+
 .mute-btn {
   font-size: 20px;
   color: var(--text-color);
   cursor: pointer;
 }
+
 .list-btn {
   font-size: 22px;
   cursor: pointer;
   color: var(--text-color);
   transition: 0.2s;
 }
+
 .list-btn:hover {
   color: var(--accent-color);
 }
@@ -424,12 +426,14 @@ defineExpose({ togglePlay, nextSong, prevSong, toggleMute })
 :deep(.el-slider__bar) {
   background-color: var(--accent-color) !important;
 }
+
 :deep(.el-slider__button) {
   border-color: var(--accent-color) !important;
   background-color: var(--accent-color) !important;
   width: 12px;
   height: 12px;
 }
+
 :deep(.el-slider__runway) {
   background-color: rgba(128, 128, 128, 0.3) !important;
   margin: 0 !important;
@@ -443,6 +447,7 @@ defineExpose({ togglePlay, nextSong, prevSong, toggleMute })
   max-height: 300px;
   overflow-y: auto;
 }
+
 .playlist-item {
   display: flex;
   align-items: center;
@@ -451,33 +456,41 @@ defineExpose({ togglePlay, nextSong, prevSong, toggleMute })
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   transition: background 0.2s;
 }
+
 .playlist-item:hover {
   background: rgba(255, 255, 255, 0.1);
 }
+
 .playlist-item.active {
   color: var(--accent-color);
 }
+
 .playlist-item.locked {
   opacity: 0.5;
   cursor: not-allowed;
 }
+
 .song-index {
   width: 30px;
   text-align: center;
   font-size: 12px;
   opacity: 0.6;
 }
+
 .song-info-mini {
   flex: 1;
 }
+
 .song-info-mini .name {
   font-size: 14px;
   font-weight: bold;
 }
+
 .song-info-mini .author {
   font-size: 12px;
   opacity: 0.7;
 }
+
 .playing-icon {
   font-size: 16px;
 }
@@ -490,7 +503,8 @@ defineExpose({ togglePlay, nextSong, prevSong, toggleMute })
   background: var(--ui-panel-bg) !important;
   border: var(--ui-panel-border) !important;
   border-radius: var(--border-radius) !important;
-  backdrop-filter: blur(10px) !important; /* 弹窗保留模糊，提升可读性 */
+  backdrop-filter: blur(10px) !important;
+  /* 弹窗保留模糊，提升可读性 */
   box-shadow: var(--ui-panel-box-shadow) !important;
   color: var(--text-color) !important;
   font-family: var(--font-family) !important;
